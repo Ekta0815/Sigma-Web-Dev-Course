@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form practise2</title>
+</head>
+
+<body>
+    <form>
+        <label for="name">NAME:</label>
+        <input type="text" name="name" id="name">
+        <br />
+        <br />
+        <label for="email">EMAIL:</label>
+        <input type="email" name="email" id="email">
+        <br />
+        <br />
+        <label for="phone">PHONE NUM:</label>
+        <input type="tel" name="telephone" id="phone">
+        <br />
+        <br />
+        <label for="document">RESUME:</label><br />
+        <input type="file" name="file" id="document">
+        <br />
+        <br />
+        <label for="counter">EXPERIENCE(in years):</label>
+        <input type="number" name="counter" id="counter" min="0" max="50">
+        <br />
+
+        <fieldset>
+            <legend>SKILLS</legend>
+            <label for="checkbox">HTML</label>
+            <input type="checkbox" name="checkbox" id="checkbox">
+            <br />
+            <br />
+            <label for="checkbox">CSS</label>
+            <input type="checkbox" name="checkbox" id="checkbox">
+            <br />
+            <br />
+            <label for="checkbox">JAVASCRIPT</label>
+            <input type="checkbox" name="checkbox" id="checkbox">
+        </fieldset>
+        <br />
+        <label for="educationtype">HIFHEST EDUCATION :--</label><br />
+        <select name="educationtype" id="educationtype">
+            <option value="a">FRESHER</option>
+            <option value="b">INTERN</option>
+            <option value="c">EXPERIENCE</option>
+        </select>
+        <br />
+        <br />
+        <fieldset>
+            <legend>AVAILABILITY</legend>
+            <label for="yesorno">Full-time</label>
+            <input type="radio" name="radio" id="yesorno">
+            <br />
+            <label for="yesorno">Part-time</label>
+            <input type="radio" name="radio" id="yesorno">
+        </fieldset>
+        <br />
+        <br />
+        <label for="textarea">ADDITIONAL COMMENTS :</label><br />
+        <textarea name="textarea" id="textarea" rows="7" cols="50"></textarea>
+        <br />
+        <button>SUBMIT APPLICATION</button>
+    </form>
+</body>
+
+</html>
