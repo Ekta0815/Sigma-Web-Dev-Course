@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Selectors Example</title>
+
+    <style>
+
+        /* Element Selector */
+        p {
+            color: blue;
+        }
+
+        /* ID Selector */
+        #mainHeading {
+            color: red;
+            text-align: center;
+        }
+
+        /* Class Selector */
+        .note {
+            background-color: yellow;
+            padding: 10px;
+        }
+
+        /* Group Selector */
+        h2, button {
+            color: green;
+            font-family: cursive;
+        }
+
+    </style>
+</head>
+
+<body>
+
+
+    <!-- ID Selector Example -->
+    <h1 id="mainHeading">Welcome to CSS Selectors</h1>
+    <h1>This is h1 heading but this won't be take a red color becouse i didn't give the id to this heading</h1>
+<h3 style="background-color: black; color: antiquewhite;">
+    CSS Selectors
+    <ul>
+        <li>Element Selector</li>
+        <li>#id Selector</li>
+        <li>.class selector</li>
+        <li>Group Selector</li>
+    </ul>
+</h3>
+    <!-- Element Selector Example -->
+    <p>This paragraph uses element selector.</p>
+
+    <!-- Class Selector Example -->
+    <p class="note">This paragraph uses class selector.</p>
+
+    <p class="note">Another paragraph using same class.</p>
+
+    <p >Another paragraph using same class. (There is no class in this)</p>
+
+    <!-- Group Selector Example -->
+    <h2>Group Selector Heading. H2 heasing and button are Group selector.</h2>
+
+    <button>Click Me</button>
+
+</body>
+</html>

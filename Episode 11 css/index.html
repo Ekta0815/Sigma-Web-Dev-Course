@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        h1{
+            color: peru;
+        }
+        h2{
+            color: blue;
+        }
+        p{
+            background-color: lightgreen; color:crimson;
+        }
+        ul{
+            background-color:lightpink; color: darkcyan;
+        }
+    </style>
+    <link rel="stylesheet" href="go.css">
+</head>
+
+<body>
+    <h1>Welcome to EktaCode.</h1>
+    <h2>1.Inline CSS </h2>
+    <p style="color: darkgreen;">
+        Inline CSS is used to apply a unique style to a single HTML element.
+    <ul style="color: darkred; background-color: cornflowerblue;">
+        <li>Location: Inside the HTML tag using the <u>style</u> attribute</li>
+        <li>Best For: Quick fixes, testing, or overriding other styles.</li>
+        <li>Specificity: highest: it overrides both intrnal and external CSS.</li>
+        <li>Drawback: Hard to maintain and makes HTML code clutred.</li>
+    </ul>
+    Example: h style="color: blue; font-size: 20px;">Hello World.h1.
+    </p>
+    <h2>Internal CSS</h2>
+    <p>
+        Internal CSS(Embedded CSS) is used to define style for a single HTML page.
+    <ul>
+        <li>Location: within a <u>style</u> tag, typically placed in the <u>head</u> section of the HTML Document.</li>
+        <li>Best For: Single-page website or unique page layouts.</li>
+        <li>Specificity: Medium; it overrride external CSS but is overriden bt inline CSS.</li>
+        <li>DearBAck: Increase the size of the HTML file, which can slow down page loading. </li>
+    </ul>
+    </p>
+    <h2>External CSS</h2>
+    <p> External CSS is the standard method for professional web development. It allows you to stlye multiple pages at
+        once.
+    <ul>
+        <li>Location: A separate file with a .css extension, linked to the HTML via the <u>link</u> tag in the
+            <u>head</u>
+        </li>
+        <li>Best For: Multi-page websites and maintaning a consistent design. </li>
+        <li>Specificity: Lowest; it is easily overridden by internal or inline styles.</li>
+        <li>Advantage: Keeps code clean (separation of concern), reduces file size, and allowa for browser coaching.
+        </li>
+    </ul>
+    </p>
+
+</html>
