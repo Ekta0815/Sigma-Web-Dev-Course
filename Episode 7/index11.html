@@ -1,0 +1,795 @@
+import React, { useState, useEffect, useRef } from "react";
+import {
+  LayoutDashboard, BookOpen, FileText, ClipboardList, MessageCircleQuestion,
+  Wallet, GraduationCap, CalendarClock, Megaphone, MessagesSquare, UserRound,
+  Menu, X, Bell, Wifi, ArrowRight, Zap, ShieldCheck, Search, Download, Eye,
+  ChevronDown, CheckCircle2, Radio, Send, Filter, FileType, Presentation,
+  Mail, Lock, User, TrendingUp, ClipboardCheck, Moon, Sun, Phone, MapPin,
+  BadgeCheck
+} from "lucide-react";
+import {
+  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
+  BarChart, Bar, Cell
+} from "recharts";
+
+/* ---------------- Mock Data ---------------- */
+const college = { name: "MK Degree College of Science", portal: "CampusCore", tagline: "Your college, always connected." };
+const student = { name: "Ekta Sharma", roll: "BSC/CS/2024/041", course: "B.Sc. Computer Science", semester: "Semester 5", attendance: 84 };
+const subjects = ["Data Structures", "Operating Systems", "Database Management Systems", "Computer Networks", "Python Programming", "Discrete Mathematics"];
+
+const timetable = [
+  { day: "Monday", slots: [
+    { time: "9:00 - 10:00", subject: "Data Structures", room: "Lab 2" },
+    { time: "10:00 - 11:00", subject: "Operating Systems", room: "Room 104" },
+    { time: "11:15 - 12:15", subject: "DBMS", room: "Room 201" },
+    { time: "1:00 - 2:00", subject: "Computer Networks", room: "Room 104" },
+  ]},
+  { day: "Tuesday", slots: [
+    { time: "9:00 - 10:00", subject: "Python Programming", room: "Lab 1" },
+    { time: "10:00 - 11:00", subject: "Discrete Mathematics", room: "Room 202" },
+    { time: "11:15 - 12:15", subject: "Data Structures", room: "Room 104" },
+    { time: "1:00 - 2:00", subject: "Operating Systems", room: "Room 104" },
+  ]},
+  { day: "Wednesday", slots: [
+    { time: "9:00 - 10:00", subject: "DBMS", room: "Lab 2" },
+    { time: "10:00 - 11:00", subject: "Computer Networks", room: "Room 201" },
+    { time: "11:15 - 12:15", subject: "Python Programming", room: "Lab 1" },
+    { time: "1:00 - 2:00", subject: "Discrete Mathematics", room: "Room 202" },
+  ]},
+];
+
+const units = {
+  "Data Structures": ["Arrays & Linked Lists", "Stacks & Queues", "Trees & Graphs", "Sorting Algorithms", "Hashing"],
+  "Operating Systems": ["Process Management", "Process Scheduling", "Memory Management", "File Systems", "Deadlocks"],
+  "Database Management Systems": ["ER Model", "Relational Algebra", "SQL", "Normalization", "Transactions"],
+  "Computer Networks": ["OSI Model", "TCP/IP", "Routing", "Network Security", "App Layer Protocols"],
+  "Python Programming": ["Basics & Control Flow", "Functions & Modules", "OOP in Python", "Exceptions", "File Handling"],
+  "Discrete Mathematics": ["Set Theory", "Relations & Functions", "Graph Theory", "Combinatorics", "Boolean Algebra"],
+};
+
+const notesData = [
+  { id: 1, subject: "Data Structures", unit: "Unit 3 — Trees & Graphs", type: "PDF", size: "2.4 MB", by: "Prof. Rane", date: "12 Jul 2026" },
+  { id: 2, subject: "Operating Systems", unit: "Unit 2 — Process Scheduling", type: "PDF", size: "1.8 MB", by: "Prof. Iyer", date: "10 Jul 2026" },
+  { id: 3, subject: "DBMS", unit: "Unit 4 — Normalization", type: "DOCX", size: "980 KB", by: "Prof. Kulkarni", date: "8 Jul 2026" },
+  { id: 4, subject: "Computer Networks", unit: "Unit 1 — OSI Model", type: "PDF", size: "3.1 MB", by: "Prof. Sane", date: "5 Jul 2026" },
+  { id: 5, subject: "Python Programming", unit: "Unit 5 — File Handling", type: "PPT", size: "4.2 MB", by: "Prof. Desai", date: "2 Jul 2026" },
+  { id: 6, subject: "Discrete Mathematics", unit: "Unit 2 — Set Theory", type: "PDF", size: "1.2 MB", by: "Prof. Rane", date: "28 Jun 2026" },
+];
+
+const pyqData = [
+  { id: 1, subject: "Data Structures", year: "2025", exam: "Semester End", q: 8 },
+  { id: 2, subject: "Operating Systems", year: "2025", exam: "Semester End", q: 10 },
+  { id: 3, subject: "DBMS", year: "2024", exam: "Semester End", q: 9 },
+  { id: 4, subject: "Computer Networks", year: "2024", exam: "Internal", q: 6 },
+  { id: 5, subject: "Python Programming", year: "2023", exam: "Semester End", q: 7 },
+];
+
+const vivaData = [
+  { subject: "Data Structures", qas: [
+    { q: "Difference between a stack and a queue?", a: "A stack follows LIFO order, while a queue follows FIFO order." },
+    { q: "What is a balanced binary tree?", a: "A tree where the height difference between left and right subtrees of every node is at most one." },
+  ]},
+  { subject: "Operating Systems", qas: [
+    { q: "What is a deadlock?", a: "A state where two or more processes wait indefinitely for resources held by each other." },
+    { q: "What is virtual memory?", a: "A technique giving an application the illusion of a large, contiguous address space." },
+  ]},
+];
+
+const feeData = [
+  { head: "Tuition Fee", amount: 28000 }, { head: "Lab Fee", amount: 4500 },
+  { head: "Library Fee", amount: 1200 }, { head: "Examination Fee", amount: 1800 },
+  { head: "Development Fee", amount: 2500 }, { head: "Sports & Cultural Fee", amount: 1000 },
+];
+
+const cgpaTrend = [
+  { semester: "Sem 1", cgpa: 7.8 }, { semester: "Sem 2", cgpa: 8.1 },
+  { semester: "Sem 3", cgpa: 8.3 }, { semester: "Sem 4", cgpa: 8.6 }, { semester: "Sem 5", cgpa: 8.4 },
+];
+
+const semResult = [
+  { subject: "Data Str.", marks: 88, grade: "A+" }, { subject: "OS", marks: 79, grade: "B+" },
+  { subject: "DBMS", marks: 91, grade: "A+" }, { subject: "Networks", marks: 74, grade: "B" },
+  { subject: "Python", marks: 95, grade: "A+" },
+];
+const gradeColor = { "A+": "#10B981", A: "#34D399", "B+": "#60A5FA", B: "#93C5FD" };
+
+const initialAnnouncements = [
+  { id: 1, title: "Semester 5 Internal Exam Timetable Released", author: "Exam Cell", time: "2 hours ago", tag: "Exams" },
+  { id: 2, title: "Guest Lecture on AI & Data Science — 2 Aug", author: "CS Department", time: "5 hours ago", tag: "Event" },
+  { id: 3, title: "Library will remain closed on 30 July", author: "Library", time: "1 day ago", tag: "Notice" },
+  { id: 4, title: "Fee Payment Deadline Extended to 5 Aug", author: "Accounts Office", time: "1 day ago", tag: "Fees" },
+];
+const livePool = [
+  { title: "Sports Day registrations open now", author: "Sports Committee", tag: "Event" },
+  { title: "Wi-Fi maintenance in Block B, 4-6 PM today", author: "IT Cell", tag: "Notice" },
+  { title: "New notes uploaded for Computer Networks", author: "Prof. Sane", tag: "Notes" },
+  { title: "Placement drive by TechNova on 6 Aug", author: "Placement Cell", tag: "Placement" },
+];
+
+const initialDoubts = [
+  { id: 1, subject: "Data Structures", user: "Aarav P.", message: "Can someone explain how AVL rotations work?", time: "3 min ago" },
+  { id: 2, subject: "DBMS", user: "Sneha K.", message: "What's the difference between 2NF and 3NF?", time: "9 min ago" },
+];
+const liveDoubtPool = [
+  { subject: "Python Programming", user: "Meera J.", message: "How does exception handling work with multiple except blocks?" },
+  { subject: "Computer Networks", user: "Karan V.", message: "Can someone explain subnetting with an example?" },
+];
+
+const tagColors = {
+  Exams: "bg-rose-50 text-rose-700 border-rose-200", Event: "bg-violet-50 text-violet-700 border-violet-200",
+  Notice: "bg-amber-50 text-amber-700 border-amber-200", Fees: "bg-blue-50 text-blue-700 border-blue-200",
+  Notes: "bg-emerald-50 text-emerald-700 border-emerald-200", Placement: "bg-indigo-50 text-indigo-700 border-indigo-200",
+};
+
+/* ---------------- Small UI primitives ---------------- */
+const Badge = ({ children, tag }) => (
+  <span className={`inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full border ${tagColors[tag] || "bg-slate-100 text-slate-600 border-slate-200"}`}>{children}</span>
+);
+const Card = ({ className = "", children }) => (
+  <div className={`bg-white rounded-2xl border border-slate-200/70 shadow-[0_1px_2px_rgba(16,24,64,0.06),0_8px_24px_-8px_rgba(16,24,64,0.12)] ${className}`}>{children}</div>
+);
+const Button = ({ variant = "primary", size = "md", className = "", children, ...props }) => {
+  const variants = {
+    primary: "bg-[#1E3A8A] text-white hover:bg-[#182c63]",
+    secondary: "bg-[#10B981] text-white hover:bg-emerald-600",
+    ghost: "bg-transparent text-[#1E3A8A] hover:bg-[#eef1f9]",
+    outline: "bg-white text-[#1E3A8A] border border-slate-200 hover:border-[#1E3A8A]",
+  };
+  const sizes = { sm: "text-sm px-3 py-1.5 rounded-lg", md: "text-sm px-4 py-2.5 rounded-xl", lg: "text-base px-6 py-3 rounded-xl" };
+  return <button className={`inline-flex items-center justify-center gap-2 font-medium transition-all active:scale-[0.98] ${variants[variant]} ${sizes[size]} ${className}`} {...props}>{children}</button>;
+};
+const Input = (props) => <input {...props} className={`w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/40 ${props.className || ""}`} />;
+
+const navLinks = [
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { id: "syllabus", label: "Syllabus", icon: BookOpen },
+  { id: "notes", label: "Notes", icon: FileText },
+  { id: "pyqs", label: "PYQs", icon: ClipboardList },
+  { id: "viva", label: "Viva Questions", icon: MessageCircleQuestion },
+  { id: "fees", label: "Fee Structure", icon: Wallet },
+  { id: "result", label: "Result", icon: GraduationCap },
+  { id: "timetable", label: "Timetable", icon: CalendarClock },
+  { id: "announcements", label: "Announcements", icon: Megaphone },
+  { id: "doubts", label: "Doubt Room", icon: MessagesSquare },
+  { id: "profile", label: "Profile", icon: UserRound },
+];
+const titles = Object.fromEntries(navLinks.map(l => [l.id, l.label]));
+
+/* ================= APP ================= */
+export default function App() {
+  const [screen, setScreen] = useState("landing"); // landing | login | app
+  const [page, setPage] = useState("dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [online, setOnline] = useState(342);
+  const [unread, setUnread] = useState(3);
+  const [toast, setToast] = useState(null);
+  const [role, setRole] = useState("student");
+
+  useEffect(() => {
+    const i = setInterval(() => setOnline(p => Math.max(120, p + Math.floor(Math.random() * 9) - 4)), 4000);
+    return () => clearInterval(i);
+  }, []);
+
+  useEffect(() => {
+    if (screen !== "app") return;
+    const i = setInterval(() => {
+      setUnread(u => u + 1);
+      setToast("New announcement posted");
+      setTimeout(() => setToast(null), 2800);
+    }, 20000);
+    return () => clearInterval(i);
+  }, [screen]);
+
+  const goApp = (target = "dashboard") => { setScreen("app"); setPage(target); };
+
+  if (screen === "landing") return <Landing online={online} onEnter={() => setScreen("login")} onNav={goApp} />;
+  if (screen === "login") return <Login role={role} setRole={setRole} onSubmit={() => goApp("dashboard")} />;
+
+  return (
+    <div className="flex min-h-screen bg-slate-50 font-sans" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+      {sidebarOpen && <div className="fixed inset-0 bg-[#0a1129]/40 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />}
+      <aside className={`fixed lg:sticky top-0 left-0 h-screen w-64 bg-[#111d42] text-white z-50 flex flex-col transition-transform duration-200 lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        <div className="flex items-center justify-between px-5 h-16 border-b border-white/10">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-[#10B981] flex items-center justify-center"><GraduationCap size={18} className="text-white" /></div>
+            <div className="leading-tight">
+              <p className="font-bold text-sm">{college.portal}</p>
+              <p className="text-[10px] text-slate-400">MK Degree College</p>
+            </div>
+          </div>
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-slate-300"><X size={18} /></button>
+        </div>
+        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+          {navLinks.map(({ id, label, icon: Icon }) => (
+            <button key={id} onClick={() => { setPage(id); setSidebarOpen(false); }}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${page === id ? "bg-white/10 text-white" : "text-slate-300 hover:bg-white/5 hover:text-white"}`}>
+              <Icon size={18} /> {label}
+            </button>
+          ))}
+        </nav>
+        <div className="p-4 border-t border-white/10 text-xs text-slate-400">© 2026 {college.name}</div>
+      </aside>
+
+      <div className="flex-1 flex flex-col min-w-0">
+        <header className="sticky top-0 z-30 h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 lg:px-6">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-slate-600"><Menu size={22} /></button>
+            <h1 className="font-bold text-lg text-slate-900">{titles[page]}</h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
+              <Wifi size={13} /> {online} online now
+            </div>
+            <div className="relative">
+              <Bell size={20} className="text-slate-600" />
+              {unread > 0 && <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">{unread}</span>}
+            </div>
+            <div className="w-8 h-8 rounded-full bg-[#1E3A8A] text-white flex items-center justify-center text-xs font-bold">ES</div>
+          </div>
+          {toast && <div className="fixed top-20 left-1/2 -translate-x-1/2 bg-[#111d42] text-white text-sm px-4 py-2.5 rounded-xl shadow-lg z-50 animate-pulse">{toast}</div>}
+        </header>
+        <main className="flex-1 p-4 lg:p-6">
+          {page === "dashboard" && <DashboardPage />}
+          {page === "syllabus" && <SyllabusPage />}
+          {page === "notes" && <NotesPage />}
+          {page === "pyqs" && <PYQsPage />}
+          {page === "viva" && <VivaPage />}
+          {page === "fees" && <FeesPage />}
+          {page === "result" && <ResultPage />}
+          {page === "timetable" && <TimetablePage />}
+          {page === "announcements" && <AnnouncementsPage />}
+          {page === "doubts" && <DoubtsPage />}
+          {page === "profile" && <ProfilePage />}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Landing ---------------- */
+function Landing({ online, onEnter, onNav }) {
+  const quick = [
+    { id: "notes", label: "Notes", icon: FileText, desc: "Subject-wise study material" },
+    { id: "timetable", label: "Timetable", icon: CalendarClock, desc: "Your weekly class schedule" },
+    { id: "result", label: "Results", icon: GraduationCap, desc: "Semester-wise performance" },
+    { id: "announcements", label: "Announcements", icon: Megaphone, desc: "Live notices & updates" },
+  ];
+  return (
+    <div className="min-h-screen bg-slate-50" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+      <nav className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-[#1E3A8A] flex items-center justify-center"><GraduationCap size={18} className="text-white" /></div>
+            <span className="font-bold text-[#111d42]">{college.portal}</span>
+          </div>
+          <Button size="sm" onClick={onEnter}>Sign In</Button>
+        </div>
+      </nav>
+
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#111d42] via-[#182c63] to-[#1E3A8A]" />
+        <div className="absolute -top-32 -right-32 w-96 h-96 bg-emerald-400/20 rounded-full blur-3xl" />
+        <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl" />
+        <div className="relative max-w-5xl mx-auto px-6 pt-20 pb-28 text-center">
+          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-emerald-300 text-xs font-medium px-3 py-1.5 rounded-full mb-6">
+            <Wifi size={13} /> {online} students online right now
+          </div>
+          <h1 className="font-extrabold text-white text-4xl md:text-6xl leading-tight max-w-3xl mx-auto">
+            Everything about your college, updated in real time.
+          </h1>
+          <p className="mt-5 text-slate-300 text-lg max-w-xl mx-auto">
+            {college.name}'s unified portal for notes, timetables, results, fees, and live campus announcements.
+          </p>
+          <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
+            <Button variant="secondary" size="lg" className="gap-2" onClick={onEnter}>Enter Portal <ArrowRight size={18} /></Button>
+            <Button variant="outline" size="lg" className="bg-transparent border-white/30 text-white hover:border-white/60" onClick={onEnter}>View Announcements</Button>
+          </div>
+        </div>
+      </section>
+
+      <section className="max-w-6xl mx-auto px-6 -mt-14 relative z-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {quick.map(({ id, label, icon: Icon, desc }) => (
+            <button key={id} onClick={onEnter} className="text-left">
+              <Card className="p-5 h-full hover:-translate-y-1 transition-transform">
+                <div className="w-10 h-10 rounded-xl bg-[#eef1f9] flex items-center justify-center mb-3"><Icon size={20} className="text-[#1E3A8A]" /></div>
+                <p className="font-bold text-slate-900 text-sm">{label}</p>
+                <p className="text-xs text-slate-500 mt-1">{desc}</p>
+              </Card>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="max-w-6xl mx-auto px-6 py-24 grid md:grid-cols-3 gap-6">
+        {[
+          { icon: Zap, title: "Real-time updates", text: "Announcements, attendance and class status update live." },
+          { icon: BookOpen, title: "All resources in one place", text: "Syllabus, notes, PYQs and viva questions by subject." },
+          { icon: ShieldCheck, title: "Built for MK College", text: "Designed around our actual course structure and calendar." },
+        ].map(({ icon: Icon, title, text }) => (
+          <Card key={title} className="p-6">
+            <div className="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center mb-4"><Icon size={22} className="text-emerald-600" /></div>
+            <h3 className="font-bold text-slate-900 mb-2">{title}</h3>
+            <p className="text-sm text-slate-500 leading-relaxed">{text}</p>
+          </Card>
+        ))}
+      </section>
+
+      <footer className="bg-[#0a1129] text-slate-400 py-8 text-center text-xs">© 2026 {college.name}. Built for academic demonstration purposes.</footer>
+    </div>
+  );
+}
+
+/* ---------------- Login ---------------- */
+function Login({ role, setRole, onSubmit }) {
+  const roles = [{ id: "student", label: "Student", icon: User }, { id: "faculty", label: "Faculty", icon: GraduationCap }, { id: "admin", label: "Admin", icon: ShieldCheck }];
+  return (
+    <div className="min-h-screen grid lg:grid-cols-2" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>
+      <div className="hidden lg:flex flex-col justify-between bg-gradient-to-br from-[#111d42] via-[#182c63] to-[#1E3A8A] p-12 relative overflow-hidden">
+        <div className="absolute -top-24 -right-24 w-80 h-80 bg-emerald-400/20 rounded-full blur-3xl" />
+        <div className="relative">
+          <div className="flex items-center gap-2 mb-16">
+            <div className="w-9 h-9 rounded-lg bg-[#10B981] flex items-center justify-center"><GraduationCap size={20} className="text-white" /></div>
+            <span className="font-bold text-white text-lg">{college.portal}</span>
+          </div>
+          <h2 className="font-extrabold text-white text-4xl leading-tight max-w-md">Welcome back to {college.name}.</h2>
+          <p className="text-slate-300 mt-4 max-w-sm">Sign in to access live announcements, notes, timetable, and results.</p>
+        </div>
+        <p className="relative text-slate-500 text-sm">© 2026 {college.name}</p>
+      </div>
+      <div className="flex items-center justify-center p-6 sm:p-12 bg-slate-50">
+        <div className="w-full max-w-sm">
+          <div className="lg:hidden flex items-center gap-2 mb-8 justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#1E3A8A] flex items-center justify-center"><GraduationCap size={18} className="text-white" /></div>
+            <span className="font-bold text-[#111d42]">{college.portal}</span>
+          </div>
+          <h1 className="font-bold text-2xl text-slate-900 mb-1">Sign in</h1>
+          <p className="text-sm text-slate-500 mb-6">Enter your credentials to continue</p>
+          <div className="flex gap-2 mb-6 bg-slate-100 p-1 rounded-xl">
+            {roles.map(({ id, label, icon: Icon }) => (
+              <button key={id} onClick={() => setRole(id)} className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-medium py-2 rounded-lg transition-all ${role === id ? "bg-white text-[#1E3A8A] shadow-sm" : "text-slate-500"}`}>
+                <Icon size={14} /> {label}
+              </button>
+            ))}
+          </div>
+          <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }} className="space-y-4">
+            <div>
+              <label className="text-xs font-medium text-slate-600 mb-1.5 block">Email or Roll Number</label>
+              <div className="relative"><Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" /><Input placeholder="you@mkcollege.edu.in" className="pl-10" /></div>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 mb-1.5 block">Password</label>
+              <div className="relative"><Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" /><Input type="password" placeholder="••••••••" className="pl-10" /></div>
+            </div>
+            <Button type="submit" className="w-full" size="lg">Sign in as {roles.find(r => r.id === role).label}</Button>
+          </form>
+          <p className="text-xs text-slate-500 text-center mt-6">New here? <span className="text-[#1E3A8A] font-medium">Create an account</span></p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Dashboard ---------------- */
+function DashboardPage() {
+  const today = timetable[0];
+  return (
+    <div className="space-y-6">
+      <div className="bg-gradient-to-r from-[#182c63] to-[#1E3A8A] rounded-2xl p-6 text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <p className="text-slate-300 text-sm">Welcome back,</p>
+          <h2 className="font-bold text-2xl">{student.name.split(" ")[0]} 👋</h2>
+          <p className="text-slate-300 text-sm mt-1">{student.course} · {student.semester}</p>
+        </div>
+        <div className="flex gap-6">
+          <div className="text-center"><p className="font-bold text-2xl">{student.attendance}%</p><p className="text-slate-300 text-xs">Attendance</p></div>
+          <div className="text-center"><p className="font-bold text-2xl">8.4</p><p className="text-slate-300 text-xs">Current CGPA</p></div>
+        </div>
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2 p-5">
+          <div className="flex items-center gap-2 mb-4"><CalendarClock size={18} className="text-[#1E3A8A]" /><h3 className="font-bold">Today's Timetable — {today.day}</h3></div>
+          <div className="space-y-2">
+            {today.slots.map((slot, i) => (
+              <div key={i} className={`flex items-center justify-between p-3 rounded-xl border ${i === 1 ? "border-emerald-300 bg-emerald-50/50" : "border-slate-100"}`}>
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-8 rounded-full bg-[#1E3A8A]" />
+                  <div><p className="text-sm font-semibold text-slate-800">{slot.subject}</p><p className="text-xs text-slate-500">{slot.room}</p></div>
+                </div>
+                <div className="text-right"><p className="text-xs font-medium text-slate-600">{slot.time}</p>{i === 1 && <Badge tag="Notes">Ongoing</Badge>}</div>
+              </div>
+            ))}
+          </div>
+        </Card>
+        <Card className="p-5">
+          <div className="flex items-center gap-2 mb-4"><ClipboardCheck size={18} className="text-[#1E3A8A]" /><h3 className="font-bold">Quick Stats</h3></div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between text-sm"><span className="text-slate-500">Pending Assignments</span><span className="font-bold">3</span></div>
+            <div className="flex items-center justify-between text-sm"><span className="text-slate-500">New Notes This Week</span><span className="font-bold">6</span></div>
+            <div className="flex items-center justify-between text-sm"><span className="text-slate-500">Open Doubts</span><span className="font-bold">3</span></div>
+            <div className="flex items-center justify-between text-sm"><span className="text-slate-500">Fee Status</span><Badge tag="Fees">Paid</Badge></div>
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2 p-5">
+          <div className="flex items-center gap-2 mb-4"><TrendingUp size={18} className="text-[#1E3A8A]" /><h3 className="font-bold">CGPA Trend</h3></div>
+          <div style={{ height: 220 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={cgpaTrend}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#eef1f9" />
+                <XAxis dataKey="semester" tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} />
+                <YAxis domain={[6, 10]} tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} />
+                <Tooltip />
+                <Line type="monotone" dataKey="cgpa" stroke="#10B981" strokeWidth={3} dot={{ r: 4, fill: "#10B981" }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+        <Card className="p-5">
+          <div className="flex items-center gap-2 mb-4"><Megaphone size={18} className="text-[#1E3A8A]" /><h3 className="font-bold">Latest</h3></div>
+          <div className="space-y-3">
+            {initialAnnouncements.slice(0, 3).map(a => (
+              <div key={a.id} className="border-b border-slate-100 last:border-0 pb-3 last:pb-0">
+                <p className="text-sm font-medium text-slate-800 leading-snug">{a.title}</p>
+                <div className="flex items-center gap-2 mt-1.5"><Badge tag={a.tag}>{a.tag}</Badge><span className="text-[11px] text-slate-400">{a.time}</span></div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Syllabus ---------------- */
+function SyllabusPage() {
+  const [query, setQuery] = useState("");
+  const filtered = subjects.filter(s => s.toLowerCase().includes(query.toLowerCase()));
+  return (
+    <div className="space-y-6">
+      <div className="relative max-w-sm">
+        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+        <Input placeholder="Search subjects..." value={query} onChange={e => setQuery(e.target.value)} className="pl-10" />
+      </div>
+      <div className="grid md:grid-cols-2 gap-5">
+        {filtered.map(subject => (
+          <Card key={subject} className="p-5">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-bold flex items-center gap-2"><BookOpen size={17} className="text-[#1E3A8A]" /> {subject}</h3>
+              <Button variant="ghost" size="sm" className="gap-1.5"><Download size={14} /> PDF</Button>
+            </div>
+            <ol className="space-y-2">
+              {units[subject]?.map((u, i) => (
+                <li key={u} className="flex items-start gap-3 text-sm text-slate-600">
+                  <span className="w-5 h-5 rounded-full bg-[#eef1f9] text-[#1E3A8A] text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
+                  Unit {i + 1}: {u}
+                </li>
+              ))}
+            </ol>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Notes ---------------- */
+function NotesPage() {
+  const [query, setQuery] = useState("");
+  const icons = { PDF: FileText, DOCX: FileType, PPT: Presentation };
+  const colors = { PDF: "bg-rose-50 text-rose-600", DOCX: "bg-blue-50 text-blue-600", PPT: "bg-amber-50 text-amber-600" };
+  const filtered = notesData.filter(n => n.unit.toLowerCase().includes(query.toLowerCase()));
+  return (
+    <div className="space-y-6">
+      <div className="relative max-w-sm">
+        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+        <Input placeholder="Search notes by unit..." value={query} onChange={e => setQuery(e.target.value)} className="pl-10" />
+      </div>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {filtered.map(note => {
+          const Icon = icons[note.type];
+          return (
+            <Card key={note.id} className="p-5 flex flex-col">
+              <div className="flex items-start justify-between mb-4">
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${colors[note.type]}`}><Icon size={20} /></div>
+                <span className="text-[11px] font-medium text-slate-400">{note.size}</span>
+              </div>
+              <p className="text-xs font-medium text-[#1E3A8A] mb-1">{note.subject}</p>
+              <p className="text-sm font-semibold text-slate-900 leading-snug flex-1">{note.unit}</p>
+              <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100">
+                <span className="text-[11px] text-slate-400">{note.by} · {note.date}</span>
+                <div className="flex gap-1.5">
+                  <button className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-500"><Eye size={15} /></button>
+                  <button className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-500"><Download size={15} /></button>
+                </div>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- PYQs ---------------- */
+function PYQsPage() {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500"><Filter size={14} /> All years · All exam types</div>
+      <Card className="overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wide">
+            <tr><th className="text-left px-5 py-3 font-medium">Subject</th><th className="text-left px-5 py-3 font-medium">Year</th><th className="text-left px-5 py-3 font-medium">Exam Type</th><th className="text-left px-5 py-3 font-medium">Questions</th><th className="text-right px-5 py-3 font-medium">Action</th></tr>
+          </thead>
+          <tbody>
+            {pyqData.map(p => (
+              <tr key={p.id} className="border-t border-slate-100 hover:bg-slate-50/60">
+                <td className="px-5 py-4 flex items-center gap-2.5 font-medium text-slate-800"><ClipboardList size={15} className="text-[#1E3A8A]" /> {p.subject}</td>
+                <td className="px-5 py-4 text-slate-600">{p.year}</td>
+                <td className="px-5 py-4"><Badge>{p.exam}</Badge></td>
+                <td className="px-5 py-4 text-slate-600">{p.q} questions</td>
+                <td className="px-5 py-4 text-right"><Button variant="ghost" size="sm" className="gap-1.5"><Download size={13} /> Download</Button></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
+    </div>
+  );
+}
+
+/* ---------------- Viva ---------------- */
+function VivaPage() {
+  const [open, setOpen] = useState(null);
+  return (
+    <div className="space-y-6">
+      {vivaData.map(section => (
+        <Card key={section.subject} className="p-5">
+          <h3 className="font-bold flex items-center gap-2 mb-3"><MessageCircleQuestion size={18} className="text-[#1E3A8A]" /> {section.subject}</h3>
+          <div className="space-y-2">
+            {section.qas.map((qa, i) => {
+              const key = `${section.subject}-${i}`;
+              const isOpen = open === key;
+              return (
+                <div key={key} className="border border-slate-100 rounded-xl overflow-hidden">
+                  <button onClick={() => setOpen(isOpen ? null : key)} className="w-full flex items-center justify-between px-4 py-3 text-left text-sm font-medium text-slate-800 hover:bg-slate-50">
+                    {qa.q}<ChevronDown size={16} className={`text-slate-400 transition-transform flex-shrink-0 ml-3 ${isOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  {isOpen && <div className="px-4 pb-4 text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">{qa.a}</div>}
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+/* ---------------- Fees ---------------- */
+function FeesPage() {
+  const total = feeData.reduce((s, f) => s + f.amount, 0);
+  return (
+    <div className="grid lg:grid-cols-3 gap-6">
+      <Card className="lg:col-span-2 p-5">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-bold flex items-center gap-2"><Wallet size={18} className="text-[#1E3A8A]" /> Fee Breakdown — {student.semester}</h3>
+          <Button variant="ghost" size="sm" className="gap-1.5"><Download size={14} /> Download Receipt</Button>
+        </div>
+        <div className="divide-y divide-slate-100">
+          {feeData.map(f => (
+            <div key={f.head} className="flex items-center justify-between py-3">
+              <span className="text-sm text-slate-600">{f.head}</span>
+              <span className="text-sm font-semibold text-slate-900">₹{f.amount.toLocaleString("en-IN")}</span>
+            </div>
+          ))}
+          <div className="flex items-center justify-between pt-4">
+            <span className="font-bold text-slate-900">Total Payable</span>
+            <span className="font-bold text-[#1E3A8A] text-lg">₹{total.toLocaleString("en-IN")}</span>
+          </div>
+        </div>
+      </Card>
+      <Card className="p-6 flex flex-col items-center text-center justify-center">
+        <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center mb-4"><CheckCircle2 size={28} className="text-emerald-600" /></div>
+        <p className="font-bold text-slate-900">Payment Status</p>
+        <p className="text-sm text-emerald-700 font-medium mt-1">Fully Paid</p>
+        <p className="text-xs text-slate-400 mt-4">Paid on 15 Jul 2026 · Ref# MK52026041</p>
+        <Button variant="outline" size="sm" className="mt-5 w-full">View Payment History</Button>
+      </Card>
+    </div>
+  );
+}
+
+/* ---------------- Result ---------------- */
+function ResultPage() {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-end"><Button variant="ghost" size="sm" className="gap-1.5"><Download size={14} /> Download Marksheet</Button></div>
+      <div className="grid lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2 p-5">
+          <h3 className="font-bold flex items-center gap-2 mb-4"><GraduationCap size={18} className="text-[#1E3A8A]" /> Subject-wise Marks</h3>
+          <div style={{ height: 260 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={semResult}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#eef1f9" vertical={false} />
+                <XAxis dataKey="subject" tick={{ fontSize: 11, fill: "#64748b" }} axisLine={false} tickLine={false} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} />
+                <Tooltip />
+                <Bar dataKey="marks" radius={[8, 8, 0, 0]}>
+                  {semResult.map((entry, i) => <Cell key={i} fill={gradeColor[entry.grade] || "#1E3A8A"} />)}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+        <Card className="p-5">
+          <h3 className="font-bold mb-4">Grade Summary</h3>
+          <div className="space-y-3">
+            {semResult.map(r => (
+              <div key={r.subject} className="flex items-center justify-between text-sm">
+                <span className="text-slate-600">{r.subject}</span>
+                <span className="font-bold" style={{ color: gradeColor[r.grade] || "#1E3A8A" }}>{r.grade}</span>
+              </div>
+            ))}
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="font-bold text-slate-900">SGPA</span><span className="font-bold text-[#1E3A8A] text-lg">8.4</span>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Timetable ---------------- */
+function TimetablePage() {
+  const [activeDay, setActiveDay] = useState("Monday");
+  const dayData = timetable.find(d => d.day === activeDay) || timetable[0];
+  const ongoingIdx = 1;
+  return (
+    <div className="space-y-6">
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        {timetable.map(d => (
+          <button key={d.day} onClick={() => setActiveDay(d.day)} className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap border transition-colors ${activeDay === d.day ? "bg-[#1E3A8A] text-white border-[#1E3A8A]" : "bg-white text-slate-600 border-slate-200 hover:border-[#1E3A8A]/40"}`}>
+            {d.day}{d.day === "Monday" && <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 align-middle" />}
+          </button>
+        ))}
+      </div>
+      <Card className="overflow-hidden">
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2"><CalendarClock size={18} className="text-[#1E3A8A]" /><h3 className="font-bold">{activeDay}'s Schedule</h3></div>
+        <div className="divide-y divide-slate-100">
+          {dayData.slots.map((slot, i) => {
+            const isOngoing = activeDay === "Monday" && i === ongoingIdx;
+            return (
+              <div key={i} className={`flex items-center justify-between px-5 py-4 ${isOngoing ? "bg-emerald-50/50" : ""}`}>
+                <div className="flex items-center gap-4">
+                  <div className="w-16 text-xs font-medium text-slate-500">{slot.time.split(" - ")[0]}</div>
+                  <div className={`w-1 h-10 rounded-full ${isOngoing ? "bg-emerald-400" : "bg-[#eef1f9]"}`} />
+                  <div><p className="text-sm font-semibold text-slate-800">{slot.subject}</p><p className="text-xs text-slate-500">{slot.room}</p></div>
+                </div>
+                {isOngoing && <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full"><Radio size={12} /> Live now</span>}
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+/* ---------------- Announcements ---------------- */
+function AnnouncementsPage() {
+  const [items, setItems] = useState(initialAnnouncements);
+  useEffect(() => {
+    const i = setInterval(() => {
+      const pick = livePool[Math.floor(Math.random() * livePool.length)];
+      setItems(prev => [{ id: Date.now(), title: pick.title, author: pick.author, tag: pick.tag, time: "Just now" }, ...prev]);
+    }, 14000);
+    return () => clearInterval(i);
+  }, []);
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-2 text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 w-fit px-3 py-1.5 rounded-full"><Radio size={13} /> Live notice board — updates automatically</div>
+      <div className="space-y-3">
+        {items.map(a => (
+          <Card key={a.id} className="p-5 flex items-start gap-4">
+            <div className="w-10 h-10 rounded-xl bg-[#eef1f9] flex items-center justify-center flex-shrink-0"><Megaphone size={18} className="text-[#1E3A8A]" /></div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-slate-900 leading-snug">{a.title}</p>
+              <div className="flex items-center gap-2 mt-2"><Badge tag={a.tag}>{a.tag}</Badge><span className="text-xs text-slate-400">{a.author} · {a.time}</span></div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Doubts ---------------- */
+function DoubtsPage() {
+  const [threads, setThreads] = useState(initialDoubts);
+  const [draft, setDraft] = useState("");
+  const bottomRef = useRef(null);
+
+  useEffect(() => {
+    const i = setInterval(() => {
+      const pick = liveDoubtPool[Math.floor(Math.random() * liveDoubtPool.length)];
+      setThreads(prev => [...prev, { id: Date.now(), subject: pick.subject, user: pick.user, message: pick.message, time: "Just now" }]);
+    }, 16000);
+    return () => clearInterval(i);
+  }, []);
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [threads]);
+
+  function handleSend(e) {
+    e.preventDefault();
+    if (!draft.trim()) return;
+    setThreads(prev => [...prev, { id: Date.now(), subject: "General", user: student.name, message: draft, time: "Just now" }]);
+    setDraft("");
+  }
+
+  return (
+    <Card className="flex flex-col h-[calc(100vh-160px)] max-h-[640px]">
+      <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
+        <MessagesSquare size={18} className="text-[#1E3A8A]" /><h3 className="font-bold">Live Doubt Room</h3>
+        <span className="ml-auto text-xs text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">{threads.length} active questions</span>
+      </div>
+      <div className="flex-1 overflow-y-auto p-5 space-y-4">
+        {threads.map(t => (
+          <div key={t.id} className={`flex gap-3 ${t.user === student.name ? "flex-row-reverse" : ""}`}>
+            <div className="w-9 h-9 rounded-full bg-[#1E3A8A] text-white text-xs font-bold flex items-center justify-center flex-shrink-0">{t.user.split(" ").map(n => n[0]).join("")}</div>
+            <div className={`max-w-[75%] flex flex-col ${t.user === student.name ? "items-end" : "items-start"}`}>
+              <div className="flex items-center gap-2 mb-1"><span className="text-xs font-semibold text-slate-700">{t.user}</span><Badge>{t.subject}</Badge></div>
+              <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${t.user === student.name ? "bg-[#1E3A8A] text-white rounded-tr-sm" : "bg-slate-100 text-slate-700 rounded-tl-sm"}`}>{t.message}</div>
+              <span className="text-[10px] text-slate-400 mt-1">{t.time}</span>
+            </div>
+          </div>
+        ))}
+        <div ref={bottomRef} />
+      </div>
+      <form onSubmit={handleSend} className="p-4 border-t border-slate-100 flex gap-2">
+        <Input value={draft} onChange={e => setDraft(e.target.value)} placeholder="Ask a doubt to the class..." className="flex-1" />
+        <Button type="submit" className="gap-1.5"><Send size={15} /> Send</Button>
+      </form>
+    </Card>
+  );
+}
+
+/* ---------------- Profile ---------------- */
+function ProfilePage() {
+  const [dark, setDark] = useState(false);
+  return (
+    <div className="grid lg:grid-cols-3 gap-6">
+      <Card className="p-6 text-center lg:col-span-1 h-fit">
+        <div className="w-20 h-20 rounded-full bg-[#1E3A8A] text-white flex items-center justify-center text-2xl font-bold mx-auto">ES</div>
+        <h2 className="font-bold text-lg text-slate-900 mt-4">{student.name}</h2>
+        <p className="text-sm text-slate-500">{student.roll}</p>
+        <div className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full mt-3"><BadgeCheck size={13} /> Verified Student</div>
+        <div className="text-left mt-6 space-y-3 text-sm text-slate-600">
+          <div className="flex items-center gap-2.5"><Mail size={15} className="text-[#1E3A8A]" /> ekta.sharma@mkcollege.edu.in</div>
+          <div className="flex items-center gap-2.5"><Phone size={15} className="text-[#1E3A8A]" /> +91 98XXX XXXXX</div>
+          <div className="flex items-center gap-2.5"><MapPin size={15} className="text-[#1E3A8A]" /> {college.name}</div>
+        </div>
+        <div className="flex items-center justify-between mt-6 pt-5 border-t border-slate-100">
+          <span className="text-sm text-slate-600">Dark mode</span>
+          <button onClick={() => setDark(d => !d)} className={`w-12 h-7 rounded-full flex items-center px-1 transition-colors ${dark ? "bg-[#1E3A8A] justify-end" : "bg-slate-200 justify-start"}`}>
+            <span className="w-5 h-5 rounded-full bg-white flex items-center justify-center shadow">{dark ? <Moon size={11} className="text-[#1E3A8A]" /> : <Sun size={11} className="text-amber-500" />}</span>
+          </button>
+        </div>
+      </Card>
+      <Card className="lg:col-span-2 p-5">
+        <h3 className="font-bold mb-4">Academic Details</h3>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div><label className="text-xs font-medium text-slate-500 mb-1.5 block">Course</label><Input defaultValue={student.course} readOnly /></div>
+          <div><label className="text-xs font-medium text-slate-500 mb-1.5 block">Current Semester</label><Input defaultValue={student.semester} readOnly /></div>
+          <div><label className="text-xs font-medium text-slate-500 mb-1.5 block">Roll Number</label><Input defaultValue={student.roll} readOnly /></div>
+          <div><label className="text-xs font-medium text-slate-500 mb-1.5 block">Attendance</label><Input defaultValue={`${student.attendance}%`} readOnly /></div>
+          <div className="sm:col-span-2"><label className="text-xs font-medium text-slate-500 mb-1.5 block">Address</label><Input placeholder="Enter your address" /></div>
+          <div className="sm:col-span-2 flex justify-end"><Button>Save Changes</Button></div>
+        </div>
+      </Card>
+    </div>
+  );
+}
